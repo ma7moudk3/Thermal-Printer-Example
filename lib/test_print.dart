@@ -1,78 +1,124 @@
-import 'package:flutter/services.dart';
-import 'package:my_thermal_prinitng/sizes.dart';
+import 'package:flutter/material.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:screenshot/screenshot.dart';
 
 ///Test printing
 class TestPrint {
   BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
 
   sample() async {
-    //image max 300px X 300px
-
-    ///image from File path
-    // String filename = 'yourlogo.png';
-    // ByteData bytesData = await rootBundle.load("assets/images/happy_border.png");
-    // String dir = (await getApplicationDocumentsDirectory()).path;
-    // File file = await File('$dir/$filename').writeAsBytes(bytesData.buffer
-    //     .asUint8List(bytesData.offsetInBytes, bytesData.lengthInBytes));
-
-    ///image from Asset
-    ByteData bytesAsset = await rootBundle.load("assets/images/happy_border.png");
-    // Uint8List imageBytesFromAsset = bytesAsset.buffer
-    //     .asUint8List(bytesAsset.offsetInBytes, bytesAsset.lengthInBytes);
-
-    // ///image from Network
-    // var response = await http.get(Uri.parse(
-    //     "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Smile_Lirion.svg/2048px-Smile_Lirion.svg.png"));
-    // Uint8List bytesNetwork = response.bodyBytes;
-    // Uint8List imageBytesFromNetwork = bytesNetwork.buffer
-    //     .asUint8List(bytesNetwork.offsetInBytes, bytesNetwork.lengthInBytes);
-
-    bluetooth.isConnected.then((isConnected) {
+    bluetooth.isConnected.then((isConnected) async {
       if (isConnected == true) {
-        bluetooth.printNewLine();
-        bluetooth.printCustom("فاتورة مبيعات", Size.boldMedium.val, Align.center.val);
-        bluetooth.printNewLine();
-        bluetooth.printNewLine();
-        bluetooth.printNewLine();
-        //bluetooth.printImageBytes(imageBytesFromNetwork); //image from Network
-        bluetooth.printNewLine();
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.medium.val);
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.bold.val);
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.bold.val,
-            format:
-            "%-15s %15s %n"); //15 is number off character from left or right
-        bluetooth.printNewLine();
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.boldMedium.val);
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.boldLarge.val);
-        bluetooth.printLeftRight("LEFT", "RIGHT", Size.extraLarge.val);
-        bluetooth.printNewLine();
-        bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val);
-        bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val);
-        bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val);
-        bluetooth.print3Column("Col1", "Col2", "Col3", Size.bold.val);
-        bluetooth.print3Column("Col1", "Col2", "Col3", Size.bold.val,
-            format:
-            "%-10s %10s %10s %n"); //10 is number off character from left center and right
-        bluetooth.printNewLine();
-        bluetooth.print4Column("Col1", "Col2", "Col3", "Col4", Size.bold.val);
-        bluetooth.print4Column("Col1", "Col2", "Col3", "Col4", Size.bold.val,
-            format: "%-8s %7s %7s %7s %n");
-        bluetooth.printNewLine();
-        bluetooth.printCustom("čĆžŽšŠ-H-ščđ", Size.bold.val, Align.center.val,
-            charset: "windows-1250");
-        bluetooth.printLeftRight("Številka:", "18000001", Size.bold.val,
-            charset: "windows-1250");
-        bluetooth.printCustom("Body left", Size.bold.val, Align.left.val);
-        bluetooth.printCustom("Body right", Size.medium.val, Align.right.val);
-        bluetooth.printNewLine();
-        bluetooth.printCustom("Thank You", Size.bold.val, Align.center.val);
-        bluetooth.printCustom("شكراً لك", Size.bold.val, Align.center.val);
-        bluetooth.printNewLine();
-        bluetooth.printQRcode(
-            "Insert Your Own Text to Generate", 200, 200, Align.center.val);
-        bluetooth.printNewLine();
-        bluetooth.printNewLine();
+        ScreenshotController screenshotController = ScreenshotController();
+        await screenshotController
+            .captureFromWidget(SizedBox(
+          child: Container(
+            height: 120,
+            width: 100,
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "فاتورة مبيعات",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "شركة كويك باي",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize:11,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                for(int i = 0 ; i < 5 ;)
+                Row(
+                  children: const [
+                    Text(
+                      "منتج 1",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "منتج 1",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ))
+            .then((capturedImage) {
+          bluetooth.printImageBytes(capturedImage);
+          debugPrint(capturedImage.toString());
+        });
+
+        // bluetooth.printNewLine();
+        // bluetooth.printCustom(
+        //     "فاتورة مبيعات", Size.boldLarge.val, Align.center.val,
+        //     charset: "UTF-8");
+        // bluetooth.printNewLine();
+        // bluetooth.printCustom(
+        //     "شركة كويك باي", Size.boldLarge.val, Align.center.val,
+        //     charset: "UTF-8");
+        // bluetooth.printNewLine();
+        // bluetooth.printLeftRight("يسار", "يمين", Size.boldMedium.val,
+        //     charset: "UTF-8");
+        // bluetooth.printNewLine();
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "UTF-8");
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "UTF-8");
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "UTF-8");
+        // bluetooth.printQRcode("Insert Your Own Text to Generate", 200, 200, 1);
+        // /////////////////////
+        // bluetooth.printNewLine();
+        // bluetooth.printCustom(
+        //     "فاتورة مبيعات", Size.boldLarge.val, Align.center.val,
+        //     charset: "windows-1256");
+        // bluetooth.printCustom(
+        //     "شركة كويك باي", Size.boldLarge.val, Align.center.val,
+        //     charset: "windows-1256");
+        // bluetooth.printNewLine();
+        // bluetooth.printNewLine();
+        // bluetooth.printLeftRight("يسار", "يمين", Size.boldMedium.val,
+        //     charset: "windows-1256");
+        // bluetooth.printNewLine();
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "windows-1256");
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "windows-1256");
+        // bluetooth.print3Column("منتج 1", "منتج 2", "منتج 3", Size.bold.val,
+        //     charset: "windows-1256");
+        // bluetooth.printQRcode("Insert Your Own Text to Generate", 200, 200, 1);
+//////////////////////////////////////////////////////////////////////////
+
         bluetooth
             .paperCut(); //some printer not supported (sometime making image not centered)
         //bluetooth.drawerPin2(); // or you can use bluetooth.drawerPin5();
